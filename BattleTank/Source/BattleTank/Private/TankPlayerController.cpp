@@ -35,17 +35,27 @@ void ATankPlayerController::AimBarrelAtCrosshair()
 	FVector OutHitLocation;
 	if (GetSightRayHitLocation(OutHitLocation))
 	{
-		UE_LOG(LogTemp, Warning, TEXT("OutHitLocation: %s"), *OutHitLocation.ToString());
+		//UE_LOG(LogTemp, Warning, TEXT("OutHitLocation: %s"), *OutHitLocation.ToString());
 	}
 	else
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Found no OutHitLocation"));
+		//UE_LOG(LogTemp, Warning, TEXT("Found no OutHitLocation"));
 	}
 }
 
 bool ATankPlayerController::GetSightRayHitLocation(FVector &OutHitLocation) const
 {
-	OutHitLocation = FVector(1.0);
+	int32 ViewportSizeX, ViewportSizeY;
+	FVector WorldLocation, WorldDirection;
+
+	GetViewportSize(ViewportSizeX, ViewportSizeY);
+	FVector2D ScreenLocation(CrossHairXLocation*ViewportSizeX, CrossHairXLocation*ViewportSizeY);
+	if (DeprojectScreenPositionToWorld(ScreenLocation.X, ScreenLocation.Y, WorldLocation, WorldDirection))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("WorldDirection: %s"), *WorldDirection.ToString());
+	}
+
 	//TODO: determine hit location and put it in OutHitLocation
+	//TODO: return true if raycast hit something
 	return true;
 }

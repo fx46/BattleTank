@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "TankPlayerController.h"
+#include "Engine/World.h"
 
 ATank* ATankPlayerController::GetControlledTank() const
 {
@@ -35,27 +36,31 @@ void ATankPlayerController::AimBarrelAtCrosshair()
 	FVector OutHitLocation;
 	if (GetSightRayHitLocation(OutHitLocation))
 	{
-		//UE_LOG(LogTemp, Warning, TEXT("OutHitLocation: %s"), *OutHitLocation.ToString());
+		UE_LOG(LogTemp, Warning, TEXT("OutHitLocation: %s"), *OutHitLocation.ToString());
+		//TODO:tell barrel to rotate towards hit location.
 	}
 	else
 	{
-		//UE_LOG(LogTemp, Warning, TEXT("Found no OutHitLocation"));
+		UE_LOG(LogTemp, Warning, TEXT("Found no OutHitLocation"));
 	}
 }
 
 bool ATankPlayerController::GetSightRayHitLocation(FVector &OutHitLocation) const
 {
 	int32 ViewportSizeX, ViewportSizeY;
-	FVector WorldLocation, WorldDirection;
-
 	GetViewportSize(ViewportSizeX, ViewportSizeY);
-	FVector2D ScreenLocation(CrossHairXLocation*ViewportSizeX, CrossHairXLocation*ViewportSizeY);
-	if (DeprojectScreenPositionToWorld(ScreenLocation.X, ScreenLocation.Y, WorldLocation, WorldDirection))
-	{
-		UE_LOG(LogTemp, Warning, TEXT("WorldDirection: %s"), *WorldDirection.ToString());
-	}
+	FVector2D ScreenLocation(CrossHairXLocation * ViewportSizeX, CrossHairYLocation * ViewportSizeY);
 
-	//TODO: determine hit location and put it in OutHitLocation
-	//TODO: return true if raycast hit something
-	return true;
+	FVector CameraWorldLocation, LookDirection;
+	DeprojectScreenPositionToWorld(ScreenLocation.X, ScreenLocation.Y, CameraWorldLocation, LookDirection);
+
+	FHitResult HitResult;
+	bool hit = GetWorld()->LineTraceSingleByChannel(
+		HitResult,
+		PlayerCameraManager->GetCameraLocation(), 
+		PlayerCameraManager->GetCameraLocation() + LookDirection * LineTraceRange,
+		ECollisionChannel::ECC_Visibility
+	);
+	OutHitLocation = HitResult.Location;
+	return hit;
 }

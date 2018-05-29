@@ -10,7 +10,7 @@ ATank* ATankPlayerController::GetControlledTank() const
 void ATankPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
-	auto ControlledTank = GetControlledTank();
+	ATank* ControlledTank = GetControlledTank();
 
 	if (!ControlledTank)
 	{
@@ -31,4 +31,21 @@ void ATankPlayerController::Tick(float DeltaTime)
 void ATankPlayerController::AimBarrelAtCrosshair()
 {
 	if (!GetControlledTank()) return;
+
+	FVector OutHitLocation;
+	if (GetSightRayHitLocation(OutHitLocation))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("OutHitLocation: %s"), *OutHitLocation.ToString());
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Found no OutHitLocation"));
+	}
+}
+
+bool ATankPlayerController::GetSightRayHitLocation(FVector &OutHitLocation) const
+{
+	OutHitLocation = FVector(1.0);
+	//TODO: determine hit location and put it in OutHitLocation
+	return true;
 }

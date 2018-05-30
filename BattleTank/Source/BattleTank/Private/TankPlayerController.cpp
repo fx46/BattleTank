@@ -11,16 +11,6 @@ ATank* ATankPlayerController::GetControlledTank() const
 void ATankPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
-	ATank* ControlledTank = GetControlledTank();
-
-	if (!ControlledTank)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("PlayerController not possesing a tankou"));
-	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("PlayerController possesing: %s"), *(ControlledTank->GetName()));
-	}
 }
 
 void ATankPlayerController::Tick(float DeltaTime)
@@ -36,12 +26,7 @@ void ATankPlayerController::AimBarrelAtCrosshair()
 	FVector OutHitLocation;
 	if (GetSightRayHitLocation(OutHitLocation))
 	{
-		UE_LOG(LogTemp, Warning, TEXT("OutHitLocation: %s"), *OutHitLocation.ToString());
-		//TODO:tell barrel to rotate towards hit location.
-	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Found no OutHitLocation"));
+		GetControlledTank()->AimAt(OutHitLocation);
 	}
 }
 

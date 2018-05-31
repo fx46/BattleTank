@@ -23,6 +23,11 @@ void UTankAimingComponent::BeginPlay()
 	
 }
 
+void UTankAimingComponent::MoveBarrel(FVector AimDirection)
+{
+	FRotator BarrelRotation = Barrel->GetForwardVector().Rotation();
+	UE_LOG(LogTemp, Warning, TEXT("%s aiming at: %s"), *(GetOwner()->GetName()), *(AimDirection.Rotation().ToString()));
+}
 
 // Called every frame
 void UTankAimingComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -30,9 +35,29 @@ void UTankAimingComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 }
 
-void UTankAimingComponent::AimAt(FVector OutHitLocation)
+void UTankAimingComponent::AimAt(FVector OutHitLocation, float LaunchSpeed)
 {
-	UE_LOG(LogTemp, Warning, TEXT("%s aiming at: %s from %s"), *(GetOwner()->GetName()), *OutHitLocation.ToString(), *(Barrel->GetComponentLocation().ToString()));
+	if (!Barrel) return;
+
+	FVector OutLaunchVelocity;
+	FVector StartLocation = Barrel->GetSocketLocation(FName("Projectile"));
+	
+	if (UGameplayStatics::SuggestProjectileVelocity(
+			this,
+			OutLaunchVelocity,
+			StartLocation,
+			OutHitLocation,
+			LaunchSpeed,
+			false,
+			0,
+			0,
+			ESuggestProjVelocityTraceOption::DoNotTrace
+			)
+		)
+	{
+		FVector AimDirection = OutLaunchVelocity.GetSafeNormal();
+		MoveBarrel(AimDirection);
+	}
 }
 
 void UTankAimingComponent::SetBarrelReference(UStaticMeshComponent * BarrelToSet)

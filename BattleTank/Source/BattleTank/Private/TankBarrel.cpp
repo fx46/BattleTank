@@ -8,7 +8,8 @@ void UTankBarrel::ElevateBarrel(float RelativeSpeed)
 
 	float ElevationChange = RelativeSpeed * MaxDegreesPerSecond * GetWorld()->DeltaTimeSeconds;
 	float RawNewElevation = RelativeRotation.Pitch + ElevationChange;
+	float Rotation = RelativeRotation.Yaw;
 
 	RawNewElevation = FMath::Clamp<float>(RawNewElevation, MinElevationDegree, MaxElevationDegree);
-	SetRelativeRotation(FRotator(RawNewElevation, 0, 0));
+	SetRelativeRotation(FRotator(RawNewElevation, Rotation, 0));
 }
